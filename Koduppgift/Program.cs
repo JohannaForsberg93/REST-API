@@ -1,4 +1,6 @@
 using Koduppgift.Data;
+using Koduppgift.Interfaces;
+using Koduppgift.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +16,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 	var connectionString = builder.Configuration.GetConnectionString("johannaDb");
 	options.UseSqlServer(connectionString);
 });
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 

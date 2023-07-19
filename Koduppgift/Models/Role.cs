@@ -1,4 +1,6 @@
-﻿namespace Koduppgift.Models
+﻿using Koduppgift.Dtos;
+
+namespace Koduppgift.Models
 	{
 	public class Role
 		{

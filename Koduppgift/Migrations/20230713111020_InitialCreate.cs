@@ -11,6 +11,19 @@ namespace Koduppgift.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Groups",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Groups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -45,28 +58,33 @@ namespace Koduppgift.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Groups",
+                name: "GroupUser",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    GroupName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: true)
+                    GroupsId = table.Column<int>(type: "int", nullable: false),
+                    UsersId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Groups", x => x.Id);
+                    table.PrimaryKey("PK_GroupUser", x => new { x.GroupsId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_Groups_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_GroupUser_Groups_GroupsId",
+                        column: x => x.GroupsId,
+                        principalTable: "Groups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_GroupUser_Users_UsersId",
+                        column: x => x.UsersId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Groups_UserId",
-                table: "Groups",
-                column: "UserId");
+                name: "IX_GroupUser_UsersId",
+                table: "GroupUser",
+                column: "UsersId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RoleId",
@@ -77,6 +95,9 @@ namespace Koduppgift.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "GroupUser");
+
             migrationBuilder.DropTable(
                 name: "Groups");
 
