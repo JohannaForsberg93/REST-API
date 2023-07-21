@@ -1,5 +1,4 @@
-﻿using Koduppgift.Dtos;
-using Koduppgift.Interfaces;
+﻿using Koduppgift.Interfaces;
 using Koduppgift.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,17 +18,16 @@ namespace Koduppgift.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[HttpPost("add")]
-		public async Task<IActionResult> AddNewUser([FromBody] UserCreateDto user)
+		public async Task<IActionResult> AddNewUser([FromBody] User user, int groupId)
 			{
-			var result = await _userRepository.AddNewUser(user);
+			var result = await _userRepository.AddNewUser(user, groupId);
 
 			if (result == null)
 				{
-				return BadRequest("Något gick fel!");
+				return BadRequest();
 				}
 			return Ok(result);
 			}
-
 
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
@@ -39,7 +37,7 @@ namespace Koduppgift.Controllers
 			var user = await _userRepository.GetUser(id);
 			if (user == null)
 				{
-				return NotFound("Kunde inte hitta en användare med valt id.");
+				return NotFound();
 				}
 			return Ok(user);
 
@@ -51,9 +49,9 @@ namespace Koduppgift.Controllers
 		public async Task<IActionResult> GetUserByRoleName(string roleName)
 			{
 			var users = await _userRepository.GetUserByRoleName(roleName);
-			if (users == null)
+			if (users == null )
 				{
-				return NotFound("Kunde inte hitta en användare med den rollen.");
+				return NotFound();
 				}
 			return Ok(users);
 			}
@@ -66,23 +64,38 @@ namespace Koduppgift.Controllers
 			var users = await _userRepository.GetUsersByGroupName(groupName);
 			if (users == null)
 				{
-				return NotFound("Kunde inte hitta någon användare i den gruppen.");
+				return NotFound();
 				}
 			return Ok(users);
+
 			}
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpPut("update/{id}")]
+		[HttpPut("update")]
 
-		public async Task<IActionResult> UpdateUser([FromBody] UserDto user)
+		public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
 			{
-			var users = await _userRepository.UpdateUser(user);
-			if (users == null)
-			{
-				return BadRequest("Något gick fel!");
+			var user = await _userRepository.UpdateUser(updatedUser);
+			if (user == null)
+				{
+				return BadRequest();
+				}
+			return Ok(user);
 			}
-			return Ok(users);
+
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[HttpDelete("remove/{id}")]
+
+		public async Task<IActionResult> DeleteUser(int id)
+			{
+			var user = await _userRepository.DeleteUser(id);
+			if (user == null)
+				{
+				return BadRequest();
+				}
+			return Ok(user);
 			}
 
 		}

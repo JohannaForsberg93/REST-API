@@ -1,6 +1,5 @@
 ﻿using Azure.Core;
 using Koduppgift.Data;
-using Koduppgift.Dtos;
 using Koduppgift.Interfaces;
 using Koduppgift.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -18,145 +17,98 @@ namespace Koduppgift.Repositories
 			_dataContext = dataContext;
 			}
 
-
-		public async Task<UserDto> AddNewUser(UserCreateDto user)
+		public async Task<User> AddNewUser(User user, int groupId)
 			{
 			var role = await _dataContext.Roles.FindAsync(user.RoleId);
+
 			if (role == null)
+				return null;
+
+			var group = await _dataContext.Groups.FindAsync(groupId);
+			if (group == null)
 				return null;
 
 			var newUser = new User
 				{
-				Username = user.UserName,
+				Name = user.Name,
 				Age = user.Age,
-				Role = role,
-				Groups = new List<Group>()
+				RoleId = user.RoleId,
+				Groups = new List<Group> { group }
 				};
 
 			_dataContext.Users.Add(newUser);
 			await _dataContext.SaveChangesAsync();
 
-
-			var createdUser = new UserDto
-			{
-				Id = newUser.Id,
-				Username = newUser.Username,
-				Age = newUser.Age,
-				Role = new RoleDto
-				{
-					Id = newUser.Role.Id,
-					RoleDtoName = newUser.Role.RoleName
-				},
-				Group = new List<GroupDto>()
-			};
-
-			return createdUser;
+			return newUser;
 			}
 
-
-		public async Task<UserDto> GetUser(int id)
-		{
-
-			var findUser = await _dataContext.Users
-				.Include(x => x.Role)
-				.SingleAsync(x => x.Id == id);
-
-			if (findUser == null)
-	return null;
-
-
-			var user = new UserDto
+		public async Task<User> GetUser(int id)
 			{
-				Username = findUser.Username,
-				Age = findUser.Age,
-				Role = new RoleDto
-				{
-					Id = findUser.Role.Id,
-					RoleDtoName = findUser.Role.RoleName
-				}
-			};
+
+			var user = await _dataContext.Users
+			.Where(x => x.Id == id)
+			.Include(x => x.Groups)
+			.SingleAsync();
+
+			if (user == null)
+				return null;
 
 			return user;
 
 			}
-
-		public async Task<List<UserDto>> GetUserByRoleName(string roleName)
+		public async Task<List<User>> GetUserByRoleName(string roleName)
 			{
 			var users = await _dataContext.Users
-				.Include(x => x.Role)
-				.Where(x => x.Role.RoleName == roleName)
-				.Select(x => new UserDto
-					{
-					Id = x.Id,
-					Username = x.Username,
-					Age = x.Age,
-					Role = new RoleDto
-						{
-						Id = x.Id,
-						RoleDtoName = x.Role.RoleName
-						}
-					})
+				.Where(user => user.RoleId != null &&
+							   _dataContext.Roles.Any(role => role.Id == user.RoleId && role.Name == roleName))
 				.ToListAsync();
 
 			return users;
 			}
 
-		public async Task<List<UserDto>> GetUsersByGroupName(string groupName)
+		public async Task<List<User>> GetUsersByGroupName(string groupName)
 			{
 			var users = await _dataContext.Users
-				.Include(x => x.Groups)
-				.Where(x => x.Groups.Any(g => g.GroupName == groupName))
-				.Select(u => new UserDto
-					{
-					Id = u.Id,
-					Username = u.Username,
-					Age = u.Age,
-					Group = u.Groups.Select(g => new GroupDto
-						{
-						Id = g.Id,
-						GroupDtoName = g.GroupName
-						}).ToList()
-					})
+				.Where(user => user.Groups.Any(group => group.Name == groupName))
 				.ToListAsync();
 
-			return users;
-			}
-
-
-		public async Task<UserDto> UpdateUser(UserDto payload)
-		{
-			var user = await _dataContext.Users.FindAsync(payload.Id);
-
-			var role = await _dataContext.Roles.Where(x => x.Id == payload.Role.Id).FirstOrDefaultAsync();
-
-			if (role == null)
+			if (users == null)
 				return null;
 
-			user.Username = payload.Username;
-			user.Age = payload.Age;
-			user.Role = role;
-			user.Groups = new List<Group>();
+			return users;
+			}
+
+		public async Task<User> UpdateUser(User updatedUser)
+			{
+			var user = await _dataContext.Users.FindAsync(updatedUser.Id);
+			if (user == null)
+				return null;
+
+			user.Name = updatedUser.Name;
+			user.Age = updatedUser.Age;
+			user.RoleId = updatedUser.RoleId;
+			user.Groups = updatedUser.Groups;
 
 			await _dataContext.SaveChangesAsync();
 
-			var updatedUser = new UserDto
+			return user;
+			}
+
+		public async Task<User> DeleteUser(int id)
 			{
-				Id = user.Id,
-				Username = user.Username,
-				Age = user.Age,
-				Role = new RoleDto
-				{
-					Id = user.Role.Id,
-					RoleDtoName = user.Role.RoleName
-				},
-				Group = new List<GroupDto>()
-			};
+			var user = await _dataContext.Users
+				.Where(x => x.Id == id)
+				.Include(x => x.Groups)
+				.SingleAsync();
 
-			return updatedUser;
+			if (user == null)
+				return null;
+
+			_dataContext.Remove(user);
+			_dataContext.SaveChanges();
+
+			return user;
+			}
 		}
-
-
-		}
-
 	}
 
