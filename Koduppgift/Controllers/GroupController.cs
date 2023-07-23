@@ -6,20 +6,20 @@ namespace Koduppgift.Controllers
 	{
 	[Route("[controller]")]
 	[ApiController]
-	public class RoleController : Controller
+	public class GroupController : Controller
 		{
-		private readonly IRoleRepository _roleRepository;
-		public RoleController(IRoleRepository roleRepository)
+		private readonly IGroupRepository _groupRepository;
+		public GroupController(IGroupRepository groupRepository)
 			{
-			_roleRepository = roleRepository;
+			_groupRepository = groupRepository;
 			}
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[HttpPost("add")]
-		public async Task<IActionResult> AddNewRole([FromBody] Role role)
+		public async Task<IActionResult> AddNewGroup([FromBody] Group group)
 			{
-			var result = await _roleRepository.AddNewRole(role);
+			var result = await _groupRepository.AddNewGroup(group);
 
 			if (result == null)
 				{
@@ -31,9 +31,9 @@ namespace Koduppgift.Controllers
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[HttpGet("{id}")]
-		public async Task<IActionResult> GetRoleById(int id)
+		public async Task<IActionResult> GetGroupById(int id)
 			{
-			var result = await _roleRepository.GetRoleById(id);
+			var result = await _groupRepository.GetGroupById(id);
 
 			if (result == null)
 				{
@@ -44,11 +44,11 @@ namespace Koduppgift.Controllers
 
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpGet("/name/{roleName}")]
-		public async Task<IActionResult> GetUsersByRoleName(string roleName)
+		[HttpGet("users/{id}")]
+		public async Task<IActionResult> GetUsersByGroupId(int id)
 
 			{
-			var result = await _roleRepository.GetUsersByRoleName(roleName);
+			var result = await _groupRepository.GetUsersByGroupId(id);
 
 			if (result == null)
 				{
@@ -59,10 +59,10 @@ namespace Koduppgift.Controllers
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpPut("update")]
-		public async Task<IActionResult> UpdateRole([FromBody] Role role)
+		[HttpPost("update")]
+		public async Task<IActionResult> UpdateGroup([FromBody] Group group)
 			{
-			var result = await _roleRepository.UpdateRole(role);
+			var result = await _groupRepository.UpdateGroup(group);
 
 			if (result == null)
 				{
@@ -73,15 +73,13 @@ namespace Koduppgift.Controllers
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpDelete("remove/{id}")]
-
-		public async Task<IActionResult> DeleteRole(int id)
+		[HttpDelete("remove")]
+		public async Task<IActionResult> DeleteGroup(int id)
 			{
-			var result = await _roleRepository.DeleteRole(id);
+			var result = await _groupRepository.DeleteGroup(id);
 			if (result == null)
-				{
 				return BadRequest();
-				}
+
 			return Ok(result);
 			}
 		}

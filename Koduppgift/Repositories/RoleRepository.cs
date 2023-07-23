@@ -75,7 +75,7 @@ namespace Koduppgift.Repositories
 			if (role == null)
 				return null;
 
-			_dataContext.Remove(role);
+			_dataContext.Roles.Remove(role);
 			await _dataContext.SaveChangesAsync();
 
 			return role;
