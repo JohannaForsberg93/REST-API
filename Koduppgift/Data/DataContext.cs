@@ -17,6 +17,12 @@ namespace Koduppgift.Data
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 			{
 			modelBuilder.Entity<User>()
+				.HasOne<Role>()
+				.WithMany(x => x.Users)
+				.HasForeignKey(x => x.RoleId)
+				.OnDelete(DeleteBehavior.SetNull);
+
+			modelBuilder.Entity<User>()
 				.HasMany(x => x.Groups)
 				.WithMany();
 

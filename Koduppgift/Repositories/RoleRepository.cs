@@ -1,4 +1,5 @@
 ﻿using Koduppgift.Data;
+using Koduppgift.Dtos;
 using Koduppgift.Interfaces;
 using Koduppgift.Models;
 using Microsoft.EntityFrameworkCore;
@@ -13,33 +14,45 @@ namespace Koduppgift.Repositories
 			_dataContext = dataContext;
 			}
 
-		public async Task<Role> AddNewRole(Role role)
+		public async Task<RoleDto> AddNewRole(RoleDto role)
 			{
-			var checkRole = await _dataContext.Roles
-				.Where(x => x.Name == role.Name)
-				.SingleAsync();
+			var findRole = await _dataContext.Roles
+				.Where(x => x.Name == role.RoleName)
+				.SingleOrDefaultAsync();
 
-			if (checkRole != null)
+			if (findRole != null)
 				return null;
 
-			var newRole = new Role();
-
-			newRole.Name = role.Name;
-			newRole.Users = role.Users;
+			var newRole = new Role
+				{
+				Name = role.RoleName
+				};
 
 			_dataContext.Roles.Add(newRole);
 			_dataContext.SaveChanges();
 
-			return newRole;
+			var roleDto = new RoleDto
+				{
+				RoleName = newRole.Name
+				};
+
+			return roleDto;
 			}
 
-		public async Task<Role> GetRoleById(int id)
+
+		public async Task<RoleDto> GetRoleById(int id)
 			{
-			var role = await _dataContext.Roles.FindAsync(id);
-			if (role == null)
+			var findRole = await _dataContext.Roles.FindAsync(id);
+			if (findRole == null)
 				return null;
 
-			return role;
+			var roleDto = new RoleDto
+				{
+				Id = findRole.Id,
+				RoleName = findRole.Name
+				};
+
+			return roleDto;
 			}
 
 		public async Task<Role> GetUsersByRoleName(string roleName)
@@ -47,7 +60,7 @@ namespace Koduppgift.Repositories
 			var users = await _dataContext.Roles
 				.Where(x => x.Name == roleName)
 				.Include(x => x.Users)
-				.SingleAsync();
+				.FirstOrDefaultAsync();
 
 			if (users == null)
 				return null;
@@ -55,23 +68,34 @@ namespace Koduppgift.Repositories
 			return users;
 			}
 
-		public async Task<Role> UpdateRole(Role role)
+		public async Task<RoleDto> UpdateRole(RoleDto role)
 			{
-			var updatedRole = await _dataContext.Roles.FindAsync(role.Id);
-			if (updatedRole == null)
+			var findRole = await _dataContext.Roles.FindAsync(role.Id);
+			if (findRole == null)
 				return null;
 
-			updatedRole.Name = role.Name;
+			findRole.Id = role.Id;
+			findRole.Name = role.RoleName;
+
+			var roleDto = new RoleDto
+				{
+				Id = findRole.Id,
+				RoleName = findRole.Name,
+				};
 
 			await _dataContext.SaveChangesAsync();
 
-			return updatedRole;
+			return roleDto;
 
 			}
 
 		public async Task<Role> DeleteRole(int id)
 			{
-			var role = await _dataContext.Roles.FindAsync(id);
+			var role = await _dataContext.Roles
+				.Where(x => x.Id == id)
+				.Include(x => x.Users)
+				.FirstOrDefaultAsync();
+
 			if (role == null)
 				return null;
 

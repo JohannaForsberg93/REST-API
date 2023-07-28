@@ -1,4 +1,5 @@
-﻿using Koduppgift.Interfaces;
+﻿using Koduppgift.Dtos;
+using Koduppgift.Interfaces;
 using Koduppgift.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +18,7 @@ namespace Koduppgift.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[HttpPost("add")]
-		public async Task<IActionResult> AddNewRole([FromBody] Role role)
+		public async Task<IActionResult> AddNewRole([FromBody] RoleDto role)
 			{
 			var result = await _roleRepository.AddNewRole(role);
 
@@ -44,7 +45,7 @@ namespace Koduppgift.Controllers
 
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpGet("/name/{roleName}")]
+		[HttpGet("/users/{roleName}")]
 		public async Task<IActionResult> GetUsersByRoleName(string roleName)
 
 			{
@@ -60,7 +61,7 @@ namespace Koduppgift.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[HttpPut("update")]
-		public async Task<IActionResult> UpdateRole([FromBody] Role role)
+		public async Task<IActionResult> UpdateRole([FromBody] RoleDto role)
 			{
 			var result = await _roleRepository.UpdateRole(role);
 

@@ -16,17 +16,16 @@ namespace Koduppgift.Repositories
 
 		public async Task<Group> AddNewGroup(Group group)
 			{
-			var checkGroup = await _dataContext.Groups
+			var checkGroupName = await _dataContext.Groups
 				.Where(x => x.Name == group.Name)
 				.FirstOrDefaultAsync();
 
-			if (checkGroup != null)
+			if (checkGroupName != null)
 				return null;
 
 			var newGroup = new Group
 				{
 				Name = group.Name,
-
 				};
 
 			_dataContext.Groups.Add(newGroup);
@@ -57,20 +56,17 @@ namespace Koduppgift.Repositories
 
 		public async Task<Group> UpdateGroup(Group group)
 			{
-			var checkGroup = await _dataContext.Groups.FindAsync(group.Id);
+			var findGroup = await _dataContext.Groups.FindAsync(group.Id);
 
-			if (group == null)
+			if (findGroup == null)
 				return null;
 
-			var updatedGroup = new Group
-				{
-				Name = group.Name,
-				};
+			findGroup.Id = group.Id;
+			findGroup.Name = group.Name;
 
-			_dataContext.Groups.Add(updatedGroup);
 			_dataContext.SaveChanges();
 
-			return updatedGroup;
+			return findGroup;
 			}
 
 		public async Task<Group> DeleteGroup(int id)

@@ -59,7 +59,7 @@ namespace Koduppgift.Controllers
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpPost("update")]
+		[HttpPut("update")]
 		public async Task<IActionResult> UpdateGroup([FromBody] Group group)
 			{
 			var result = await _groupRepository.UpdateGroup(group);

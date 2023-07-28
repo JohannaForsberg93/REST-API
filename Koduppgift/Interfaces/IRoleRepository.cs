@@ -1,13 +1,14 @@
-﻿using Koduppgift.Models;
+﻿using Koduppgift.Dtos;
+using Koduppgift.Models;
 
 namespace Koduppgift.Interfaces
 	{
 	public interface IRoleRepository
 		{
-		Task<Role> AddNewRole(Role role);
-		Task<Role> GetRoleById(int id);
+		Task<RoleDto> AddNewRole(RoleDto role);
+		Task<RoleDto> GetRoleById(int id);
 		Task<Role> GetUsersByRoleName(string roleName);
-		Task<Role> UpdateRole(Role role);
+		Task<RoleDto> UpdateRole(RoleDto role);
 		Task<Role> DeleteRole(int id);
 
 		}

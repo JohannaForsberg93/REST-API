@@ -1,5 +1,5 @@
-﻿using Koduppgift.Interfaces;
-using Koduppgift.Models;
+﻿using Koduppgift.Dtos;
+using Koduppgift.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Koduppgift.Controllers
@@ -18,9 +18,9 @@ namespace Koduppgift.Controllers
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[HttpPost("add")]
-		public async Task<IActionResult> AddNewUser([FromBody] User user, int groupId)
+		public async Task<IActionResult> AddNewUser([FromBody] UserDto user)
 			{
-			var result = await _userRepository.AddNewUser(user, groupId);
+			var result = await _userRepository.AddNewUser(user);
 
 			if (result == null)
 				{
@@ -49,7 +49,7 @@ namespace Koduppgift.Controllers
 		public async Task<IActionResult> GetUserByRoleName(string roleName)
 			{
 			var users = await _userRepository.GetUserByRoleName(roleName);
-			if (users == null )
+			if (users == null)
 				{
 				return NotFound();
 				}
@@ -72,17 +72,18 @@ namespace Koduppgift.Controllers
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
-		[HttpPut("update")]
+		[HttpPut("update/{groupId}")]
 
-		public async Task<IActionResult> UpdateUser([FromBody] User updatedUser)
+		public async Task<IActionResult> UpdateUser([FromBody] UserDto updateUser, int groupId)
 			{
-			var user = await _userRepository.UpdateUser(updatedUser);
+			var user = await _userRepository.UpdateUser(updateUser, groupId);
 			if (user == null)
 				{
 				return BadRequest();
 				}
 			return Ok(user);
 			}
+
 
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status200OK)]

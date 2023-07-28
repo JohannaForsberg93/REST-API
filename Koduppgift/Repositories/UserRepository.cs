@@ -1,9 +1,8 @@
 ﻿using Azure.Core;
 using Koduppgift.Data;
+using Koduppgift.Dtos;
 using Koduppgift.Interfaces;
 using Koduppgift.Models;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Koduppgift.Repositories
@@ -17,29 +16,26 @@ namespace Koduppgift.Repositories
 			_dataContext = dataContext;
 			}
 
-		public async Task<User> AddNewUser(User user, int groupId)
+		public async Task<UserDto> AddNewUser(UserDto user)
 			{
-			var role = await _dataContext.Roles.FindAsync(user.RoleId);
-
-			if (role == null)
-				return null;
-
-			var group = await _dataContext.Groups.FindAsync(groupId);
-			if (group == null)
-				return null;
-
 			var newUser = new User
 				{
-				Name = user.Name,
+				Name = user.UserName,
 				Age = user.Age,
 				RoleId = user.RoleId,
-				Groups = new List<Group> { group }
 				};
 
 			_dataContext.Users.Add(newUser);
-			await _dataContext.SaveChangesAsync();
+			_dataContext.SaveChanges();
 
-			return newUser;
+			var savedUser = new UserDto
+				{
+				UserName = newUser.Name,
+				Age = newUser.Age,
+				RoleId = newUser.RoleId,
+				};
+
+			return savedUser;
 			}
 
 		public async Task<User> GetUser(int id)
@@ -54,7 +50,6 @@ namespace Koduppgift.Repositories
 				return null;
 
 			return user;
-
 			}
 		public async Task<List<User>> GetUserByRoleName(string roleName)
 			{
@@ -78,16 +73,20 @@ namespace Koduppgift.Repositories
 			return users;
 			}
 
-		public async Task<User> UpdateUser(User updatedUser)
+		public async Task<User> UpdateUser(UserDto updateUser, int groupId)
 			{
-			var user = await _dataContext.Users.FindAsync(updatedUser.Id);
+			var user = await _dataContext.Users.FindAsync(updateUser.Id);
 			if (user == null)
 				return null;
 
-			user.Name = updatedUser.Name;
-			user.Age = updatedUser.Age;
-			user.RoleId = updatedUser.RoleId;
-			user.Groups = updatedUser.Groups;
+			var checkGroup = await _dataContext.Groups.FindAsync(groupId);
+			if (checkGroup == null)
+				return null;
+
+			user.Name = updateUser.UserName;
+			user.Age = updateUser.Age;
+			user.RoleId = updateUser.RoleId;
+			user.Groups.Add(checkGroup);
 
 			await _dataContext.SaveChangesAsync();
 
@@ -111,4 +110,3 @@ namespace Koduppgift.Repositories
 			}
 		}
 	}
-
